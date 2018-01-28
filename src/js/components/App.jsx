@@ -1,8 +1,14 @@
 import React from 'react';
+import { Switch, Route } from 'react-router-dom';
+import Home from './Home';
+import Header from './Header';
 
 const App = () => (
   <div>
-    <h1>Hello World</h1>
+    <Header title="Open Movie App" />
+    <Switch>
+      <Route exact path="/" component={Home} />
+    </Switch>
   </div>
 );
 

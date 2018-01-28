@@ -1,28 +1,45 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+
+const extractCSS = new ExtractTextPlugin({ filename: 'bundle.css' })
 
 const config = {
-  entry: ['./src/js/index.jsx'],
+  context: __dirname,
+  entry: [
+    'react-hot-loader/patch',
+    'webpack-dev-server/client?http://localhost:8080/',
+    'webpack/hot/only-dev-server',
+    './src/js/index.jsx'
+  ],
   devtool: 'cheap-eval-source-map',
   output: {
     path: path.resolve(__dirname, 'public/dist'),
     filename: 'bundle.js',
     publicPath: '/public/dist/'
   },
+  devServer: {
+    hot: true,
+    publicPath: '/public/dist/',
+    historyApiFallback: true
+  },
   plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NamedModulesPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: './src/templates/index.html'
-    })
+    }),
+    extractCSS
   ],
   resolve: {
-    extensions: ['.js', '.jsx', 'json']
+    extensions: ['.js', '.jsx', '.json', '.css']
   },
   stats: {
     colors: true,
     reasons: true,
-    chunks: false
+    chunks: true
   },
   module: {
     rules: [
@@ -37,11 +54,14 @@ const config = {
         test: /\.jsx?$/,
         exclude: /node_modules/,
         use: ['babel-loader', 'eslint-loader']
-	  },
-	  {
-		test: /.\css$/,
-		use: ['css-loader', 'style-loader']
-	  }
+      },
+      {
+        test: /\.css$/,
+        use: extractCSS.extract({
+          fallback: 'style-loader',
+          use: ['css-loader']
+        })
+      }
     ]
   }
 };
